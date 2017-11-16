@@ -1,4 +1,4 @@
-<?php
+cd<?php
 use Migrations\AbstractMigration;
 
 class CreateShowtimes extends AbstractMigration
