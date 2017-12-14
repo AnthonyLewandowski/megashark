@@ -19,7 +19,7 @@
 </nav>
 <div class="showtimes view large-9 medium-8 columns content">
     <h3><?= h($showtime->id) ?></h3>
-    <table class="horizontal-table">
+    <table class="vertical-table">
         <tr>
             <th scope="row"><?= __('Movie') ?></th>
             <td><?= $showtime->has('movie') ? $this->Html->link($showtime->movie->name, ['controller' => 'Movies', 'action' => 'view', $showtime->movie->id]) : '' ?></td>
