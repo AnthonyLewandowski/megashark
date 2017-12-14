@@ -6,7 +6,6 @@ use App\Controller\AppController;
 /**
  * Showtimes Controller
  *
- * @property \App\Model\Table\ShowtimesTable $Showtimes
  *
  * @method \App\Model\Entity\Showtime[] paginate($object = null, array $settings = [])
  */
@@ -20,13 +19,19 @@ class ShowtimesController extends AppController
      */
     public function index()
     {
+        
         $this->paginate = [
             'contain' => ['Movies', 'Rooms']
         ];
-        $showtimes = $this->paginate($this->Showtimes);
 
+
+        $showtimes = $this->paginate($this->Showtimes);
+        
         $this->set(compact('showtimes'));
         $this->set('_serialize', ['showtimes']);
+        
+    
+           
     }
 
     /**
@@ -38,13 +43,18 @@ class ShowtimesController extends AppController
      */
     public function view($id = null)
     {
+        
         $showtime = $this->Showtimes->get($id, [
-            'contain' => ['Movies', 'Rooms']
+            'contain' => ['Movies','Rooms']
         ]);
         
         $this->set('showtime', $showtime);
-        $this->set(compact('movies', 'rooms'));
+        $this->set(compact(
+            'movies',
+            'rooms'
+        ));
         $this->set('_serialize', ['showtime']);
+        
     }
 
     /**
@@ -53,7 +63,8 @@ class ShowtimesController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
     public function add()
-    {   $movies = $this->Showtimes->Movies->find('list');
+    {
+        $movies = $this->Showtimes->Movies->find('list');
         $rooms = $this->Showtimes->Rooms->find('list');
         $showtime = $this->Showtimes->newEntity();
         if ($this->request->is('post')) {
@@ -65,18 +76,13 @@ class ShowtimesController extends AppController
             }
             $this->Flash->error(__('The showtime could not be saved. Please, try again.'));
         }
-       
-       $this->set(compact(
+        
+        $this->set(compact(
             'showtime',
             'movies',
             'rooms'
         ));
         $this->set('_serialize', ['showtime']);
-       
-       /*$movies = $this->Showtimes->Movies->find('list', ['limit' => 200]);
-        $rooms = $this->Showtimes->Rooms->find('list', ['limit' => 200]);
-        $this->set(compact('showtime', 'movies', 'rooms'));
-        $this->set('_serialize', ['showtime']);*/
     }
 
     /**
@@ -133,15 +139,27 @@ class ShowtimesController extends AppController
     public function planning($id = null){
         
         $rooms = $this->Showtimes->Rooms->find('list');
+        $firstRoomId = (array_keys($rooms->toArray()))[0];
         
-        if ($this->request->is('post')) {
-            $showtimes = $this->Showtimes->find()
-            ->where(['room_id ' => $this->request->getData('room_id')])
+  
+        $showtimes = $this->Showtimes
+            ->find()
             ->contain([
-                        'Movies',
-                        'Rooms'
-                    ]);
+                'Movies',
+                'Rooms'
+            ]);
+  
+        if ($this->request->is('post')) {
+            
+            $showtimes = $showtimes->where([
+                'room_id ' => $this->request->getData('room_id')
+           ]);
         }    
+        else{
+            $showtimes = $showtimes
+                ->where(['room_id ' => $firstRoomId
+            ]); 
+        }
         
         $showtimesByWeek = [];
         $days=["","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
@@ -157,3 +175,5 @@ class ShowtimesController extends AppController
         $this->set('_serialize', ['room']);
     }
 }
+
+
